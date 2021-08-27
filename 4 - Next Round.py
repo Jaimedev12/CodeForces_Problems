@@ -1,4 +1,3 @@
-
 inputnk = input()
 lista = inputnk.split()
 contador = 0
@@ -14,18 +13,16 @@ if n >= k:
         # Comprobando si el número de califs == n
         if len(listaCalifs) == n:
 
-            if int(listaCalifs[0]) == k:
-                k = k - 1
+            barra = 0
+            barra = int(listaCalifs[k - 1])
 
-            if int(listaCalifs[0]) > k:
-                #Ver si cada elemento de la lista es mayor a k, si es, aumentar contador
-                for calif in listaCalifs:
-                    if int(listaCalifs[contador]) > k:
+            for calif in listaCalifs:
+                    if int(listaCalifs[contador]) >= barra:
                         contador += 1
                     else:
                         break
-                print(contador)
-                
+            print(contador)     
+            
         else:
             exit()
 else:
