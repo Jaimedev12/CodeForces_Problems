@@ -17,11 +17,11 @@ if n >= k:
             barra = int(listaCalifs[k - 1])
 
             for calif in listaCalifs:
-                    if int(listaCalifs[contador]) >= barra:
-                        contador += 1
-                    else:
-                        break
-            print(contador)     
+                if int(listaCalifs[contador]) >= barra and int(listaCalifs[contador]) != 0:
+                    contador += 1
+                else:
+                    break
+            print(contador)
             
         else:
             exit()
