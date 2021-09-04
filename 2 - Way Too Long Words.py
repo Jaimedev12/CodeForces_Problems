@@ -1,4 +1,3 @@
-
 index = int(input())
 
 def printWord():
