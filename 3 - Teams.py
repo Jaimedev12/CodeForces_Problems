@@ -1,4 +1,3 @@
-
 numberOfProblems = int(input()) #Enter the number of problem they will solve
 counter = 0
 
