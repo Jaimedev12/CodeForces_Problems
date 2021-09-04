@@ -1,3 +1,4 @@
+
 inputnk = input()
 lista = inputnk.split()
 contador = 0
