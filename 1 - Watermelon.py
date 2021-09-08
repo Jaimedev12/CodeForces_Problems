@@ -1,4 +1,3 @@
-
 w = int(input())
 
 if w < 1 or w > 100:
