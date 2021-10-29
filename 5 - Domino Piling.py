@@ -1,4 +1,3 @@
-
 dimensionesTablero = input()
 numeroDeDominos = 0
 
