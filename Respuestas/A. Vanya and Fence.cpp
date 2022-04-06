@@ -1,7 +1,7 @@
 
 // A. Vanya and Fence 
 
-#include <bits/stdc++.h>
+#include <vector>
 #include <iostream>
 using namespace std;
 
@@ -12,7 +12,7 @@ void initializeVector(vector<int> &x, int n){
 }
 
 int countWidth(vector<int> a, int n, int h){
-    w = 0;
+    int w = 0;
     for(int i = 0; i < n; i++){
         if(a[i] <= h)
             w++;
