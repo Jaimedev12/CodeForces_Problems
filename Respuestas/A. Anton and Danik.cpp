@@ -1,7 +1,6 @@
 
 // A. Anton and Danik
 
-#include <bits/stdc++.h>
 #include <iostream>
 using namespace std;
 
