@@ -1,6 +1,7 @@
 
 // A. Anton and Danik
 
+#include <string>
 #include <iostream>
 using namespace std;
 
