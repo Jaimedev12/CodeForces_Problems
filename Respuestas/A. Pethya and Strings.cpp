@@ -1,6 +1,7 @@
 // A. Pethya and Strings
 
 #include <iostream>
+#include <string>
 #include <vector>
 
 using namespace std;
