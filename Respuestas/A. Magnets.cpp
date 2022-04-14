@@ -22,6 +22,8 @@ void countGroups(vector<int> &v){
 
 int main()
 {
+    ios_base::sync_with_stdio(false);
+    
     cin >> n;
     vector<int> v(n);
     
