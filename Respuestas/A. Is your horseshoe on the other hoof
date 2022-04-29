@@ -1,0 +1,25 @@
+// A. Is your horseshoe on the other hoof?
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int main()
+{
+    int s1, s2, s3, s4;
+    cin >> s1 >> s2 >> s3 >> s4;
+    
+    int cnt = 1;
+    
+    vector<int> hs{s1, s2, s3, s4};
+    sort(hs.begin(), hs.end());
+    
+    for (int i = 0; i < hs.size(); i++){
+        if (hs[i] == hs[i+1])
+            cnt++;
+    }
+    
+    cout << 3-cnt << endl;
+}
