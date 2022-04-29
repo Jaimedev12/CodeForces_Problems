@@ -13,6 +13,9 @@ int main()
         rest = (k * cnt) % 10;
         change = rest - r;
         
+        if (rest == 0)
+            break;
+        
         if (change != 0)
             cnt++;
     }
