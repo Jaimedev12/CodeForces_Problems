@@ -13,6 +13,7 @@ typedef long double ld;
 typedef long long int lli;
 typedef pair<lli, lli> pii;
 typedef vector<lli> vi;
+typedef vector<vi> vvi;
 
 #define fi first
 #define se second
@@ -24,38 +25,42 @@ typedef vector<lli> vi;
 
 /*
     Complejidad Temporal:
-    O(t * n)
-    t = número de casos
-    n = cantidad de días por caso
+    O(n * m)
+
+    Complejidad de Espacio: 
+    O(n * m)
+
+    n = longitud del primer string
+    m = longitud del segundo string
 */
 
 int main() { _
 
     int t; cin >> t;
+    int curT = 1;
 
-    while (t--) { // O(t)
-        int n; cin >> n;
-        int maxDif = 0; 
-        int minNum = INT_MAX; 
-        int rptr = 0;
-        int lptr = 0;
-        
-        fore(i, 0, n) { //O(n)
-            int num; cin >> num;
+    while (curT <= t) {
+        string s1, s2;
+        cin >> s1 >> s2;
+        int n1 = s1.length();
+        int n2 = s2.length();
 
-            if (num < minNum) {
-                minNum = num;
-                lptr = i+1;
+        vvi mat(n1+1, vi(n2+1, 0));
+
+        lli ans = 0;
+
+        fore(i, 1, n1+1) {
+            fore(j, 1, n2+1) {
+                if (s1[i-1] == s2[j-1]) {
+                    mat[i][j] = mat[i-1][j-1]+1;
+                    ans = max(ans, mat[i][j]);
+                }
             }
+        }        
 
-            if (num-minNum > maxDif) {
-                maxDif = num-minNum;
-                rptr = i+1;
-            }
-        }
+        print("Case " << curT << ": " << ans);
 
-        cout << "Buy in " << lptr << ", sell in " << rptr << endl;
-
+        curT++;
     }
 
     return 0;

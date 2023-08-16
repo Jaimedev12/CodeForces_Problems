@@ -1,9 +1,4 @@
 
-/*
-    Jaime Eduardo López Castro
-    A00833173
-*/
-
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -31,18 +26,9 @@ int mat[MAXN][MAXN];
 int n1, n2;
 bool flag;
 
-/*
-    Complejidad Temporal:
-    O(n * m)
-
-    Complejidad de Espacio: 
-    O(n * m)
-
-    n = longitud del primer tren
-    m = longitud del segundo tren
-*/
-
 void solve(int posA, int posB, int posC) {
+
+    //cout << "A: " << posA << " B: " << posB << endl;
 
     if(posA == n1+1 && posB == n2+1){
         flag = 1;

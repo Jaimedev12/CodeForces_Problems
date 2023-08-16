@@ -1,6 +1,10 @@
 /*
     Jaime Eduardo López Castro
     A00833173
+
+    DUDA:
+    ¿Solamente es un rango por cada test case?
+
 */
 
 #include <bits/stdc++.h>
