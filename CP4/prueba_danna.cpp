@@ -6,29 +6,25 @@
 using namespace std;
 
 int main() {
-    
+    std::cin.tie(nullptr);
+    std::ios_base::sync_with_stdio(false);
+
     int n;
     cin >> n;
-    vector<int> positions;
-
-    int num;
+    vector<int> nums(1e6+10);
+    int temp;
     for (int i = 0; i < n; i++){
-        cin >> num;
-        if (num % 3 == 0){
-            positions.push_back(i + 1);
-        }
+        cin >> temp;
+        nums[temp]++;
     }
 
-    if (positions.size() == 0){
-        cout << "No hay triples." << endl;
-    }
-    else{
-        cout << positions.size()  << endl;    
-    }
 
-    for (int i = 0; i < positions.size(); i++) {
-        cout << positions[i] << " ";
+    int suma = 0;
+    for (int i = 0; i < 1e6+10  ; i++) {
+        suma += nums[i]%2;
     }
-    cout << endl;
+    cout << suma << endl;
+
+       
     return 0;
 }
