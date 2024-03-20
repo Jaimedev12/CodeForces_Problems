@@ -1,0 +1,533 @@
+exports.addRewardToUserOLD = (data, context) => {
+    const {uid, companyid, monto, employeeid} = data;
+    let companyIdArray = [];
+    let companyRewards = [];
+    let companySettings = [];
+    let newClient = false;
+    let rewardProcessed = {};
+    let userData = [];
+    let employeeData = [];
+    let companyHasPointRewards = false;
+    let pointRewardMessage = "";
+    var visitFolio = "";
+    let location;
+
+    if (data.location === undefined) {
+        location = null;
+    } else {
+        location = data.location;
+    }
+
+    console.log(
+        `Location id of sale in addRewardToUser: ${JSON.stringify(location)}. CompanyID: ${companyid}.`
+    );
+
+    function getUserInfo() {
+        return admin.firestore().collection("users").doc(uid).get();
+    }
+
+    function getCompanySettings() {
+        return admin
+            .firestore()
+            .collection("companies")
+            .doc(companyid)
+            .collection("settings")
+            .doc("recompensa_por_visitas")
+            .get();
+    }
+
+    function getGlobalCompanySettings() {
+        return admin
+            .firestore()
+            .collection("companies")
+            .doc(companyid)
+            .collection("settings")
+            .doc("global")
+            .get();
+    }
+
+    function getEmployeeInfo() {
+        return admin.firestore().collection("posUsers").doc(employeeid).get();
+    }
+
+    function getCompanyRewards() {
+        return admin
+            .firestore()
+            .collection("companies")
+            .doc(companyid)
+            .collection("rewards")
+            .where("minimum", "<=", monto)
+            .get();
+    }
+
+    function verifyUserCompanies(doc) {
+        if (doc.exists) {
+            const {companies} = doc.data();
+            userData = doc.data();
+
+            companyIdArray = companies;
+
+            if (companies.includes(companyid)) {
+                return true;
+            } else {
+                companyIdArray.push(companyid);
+                return false;
+            }
+        } else {
+            throw new functions.https.HttpsError(
+                "not-found",
+                "Hubo un error, asegurate que el QR sea del usuario, no de promoción",
+                "Documento del usuario no ha sido encontrado"
+            );
+        }
+    }
+
+    function addCompanyToUser() {
+        return admin.firestore().collection("users").doc(uid).update({companies: companyIdArray});
+    }
+
+    function addRewardToUserDB() {
+        var batch = admin.firestore().batch();
+
+        companyRewards.forEach((reward) => {
+            var docRef = admin
+                .firestore()
+                .collection("users")
+                .doc(uid)
+                .collection("rewards")
+                .doc(reward.rewardid);
+
+            reward.lastClaimed = new Date();
+            batch.set(docRef, reward);
+        });
+        return batch.commit();
+    }
+
+    function addRewardToCompanyDB() {
+        var batch = admin.firestore().batch();
+
+        companyRewards.forEach((reward) => {
+            var docRef = admin
+                .firestore()
+                .collection("companies")
+                .doc(companyid)
+                .collection("users")
+                .doc(uid)
+                .collection("rewards")
+                .doc(reward.rewardid);
+
+            reward.lastClaimed = new Date();
+            batch.set(docRef, reward);
+        });
+
+        return batch.commit();
+    }
+
+    function addUserToReward() {
+        var batch = admin.firestore().batch();
+        companyRewards.forEach((reward) => {
+            var docRef = admin
+                .firestore()
+                .collection("companies")
+                .doc(companyid)
+                .collection("rewards")
+                .doc(reward.rewardid)
+                .collection("clients")
+                .doc(uid);
+
+            batch.set(docRef, {uid: uid, email: userData.email});
+        });
+
+        return batch.commit();
+    }
+
+    function getUserDataFromCompanyDB() {
+        return admin
+            .firestore()
+            .collection("companies")
+            .doc(companyid)
+            .collection("users")
+            .doc(uid)
+            .get();
+    }
+
+    function setUserDataToCompanyDB() {
+        const {consumoMensual, consumoPromedio, visitasMensuales, locations} = userData;
+        if (visitasMensuales === undefined) {
+            userData.visitasMensuales = 1;
+        } else {
+            userData.visitasMensuales = visitasMensuales + 1;
+        }
+
+        if (consumoMensual === undefined) {
+            userData.consumoMensual = monto;
+        } else {
+            userData.consumoMensual = consumoMensual + monto;
+        }
+
+        if (consumoPromedio === undefined) {
+            userData.consumoPromedio = monto;
+        } else {
+            userData.consumoPromedio = userData.consumoMensual / userData.visitasMensuales;
+        }
+
+        // Revisamos que el usuario existe
+        if (!userData.locations) {
+            // Revisamos que el valor de location no sea nula
+            if (location) {
+                // Inicializamos la lista con la primera location
+                userData.locations = [location];
+            } else {
+                // Inicializamos la lista vacia
+                userData.locations = [];
+            }
+        } else {
+            // Si la ubicación de la sucursal no existe dentro de la lista, lo agregamos
+            if (!userData.locations.includes(location)) {
+                userData.locations = [...userData.locations, location];
+            }
+        }
+
+        console.log(`Users locations: ${JSON.stringify(locations)}`);
+        console.log(`Users uid: ${userData.uid}`);
+
+        userData.lastSeen = new Date();
+        userData.lastAmount = monto;
+        userData.lastLocation = location;
+
+        return admin
+            .firestore()
+            .collection("companies")
+            .doc(companyid)
+            .collection("users")
+            .doc(uid)
+            .set(userData, {merge: true});
+    }
+
+    function checkUserRewardsFromCompanyDB() {
+        return admin
+            .firestore()
+            .collection("companies")
+            .doc(companyid)
+            .collection("users")
+            .doc(uid)
+            .collection("rewards")
+            .where("minimum", "<=", monto)
+            .get();
+    }
+
+    function addUserVisitToCompanyDB() {
+        return admin
+            .firestore()
+            .collection("companies")
+            .doc(companyid)
+            .collection("users")
+            .doc(uid)
+            .collection("visits")
+            .add({
+                amount: monto,
+                date: new Date(),
+                newClient: newClient,
+                employee: {
+                    name: employeeData.name,
+                    email: employeeData.email,
+                    uid: employeeData.uid,
+                },
+                location: location,
+            });
+    }
+
+    // agregar historial
+    function addUserVisitToHistory(valid) {
+        return admin
+            .firestore()
+            .collection("companies")
+            .doc(companyid)
+            .get()
+            .then((doc) => {
+                return admin
+                    .firestore()
+                    .collection("users")
+                    .doc(uid)
+                    .collection("history")
+                    .add({
+                        validVisit: valid,
+                        companyID: companyid,
+                        companyName: doc.data().companyName,
+                        amount: monto,
+                        date: new Date(),
+                        newClient: newClient,
+                        employee: {
+                            name: employeeData.name,
+                            email: employeeData.email,
+                            uid: employeeData.uid,
+                        },
+                        location: location,
+                        companyLogoUrl: doc.data().companyLogoUrl,
+                    });
+            });
+    }
+
+    async function addRewardToLog(valid) {
+        return await admin
+            .firestore()
+            .collection("companies")
+            .doc(companyid)
+            .collection("rewardsLog")
+            .add({
+                amount: monto,
+                date: new Date(),
+                location: location,
+                newClient: newClient,
+                validVisit: valid,
+                employee: {
+                    name: employeeData.name,
+                    email: employeeData.email,
+                    uid: employeeData.uid,
+                },
+                client: {
+                    email: userData.email,
+                    uid: userData.uid,
+                    name: userData.nombre,
+                    lastName: userData.apellido ? userData.apellido : null,
+                    birthDate: userData.birthDate ? userData.birthDate : null,
+                },
+            })
+            .then(async (doc) => {
+                visitFolio = doc.id;
+                await admin
+                    .firestore()
+                    .collection("companies")
+                    .doc(companyid)
+                    .collection("rewardsLog")
+                    .doc(doc.id)
+                    .set({uid: doc.id}, {merge: true});
+            });
+    }
+
+    function getLastVisit() {
+        return admin
+            .firestore()
+            .collection("users")
+            .doc(uid)
+            .collection("history")
+            .where("companyID", "==", companyid)
+            .orderBy("date", "desc")
+            .limit(1)
+            .get();
+    }
+
+    const getLastValidVisit = async () => {
+        const querySnapshot = await admin
+            .firestore()
+            .collection("users")
+            .doc(uid)
+            .collection("history")
+            .where("companyID", "==", companyid)
+            .where("validVisit", "==", true)
+            .orderBy("date", "desc")
+            .limit(1)
+            .get();
+
+        if (querySnapshot.empty) {
+            return new Date(969766308000);
+        }
+
+        return new Date(querySnapshot.docs[0].data().date.seconds * 1000);
+    };
+
+    return getLastVisit()
+        .then((querySnapshot) => {
+            if (!querySnapshot.empty) {
+                const documentSnapshot = querySnapshot.docs[0];
+                const documentData = documentSnapshot.data();
+                const lastVisitDate = documentData.date.toDate();
+                const today = new Date();
+                const diffTime = Math.abs(today - lastVisitDate);
+                const diffSeconds = Math.floor(diffTime / 1000);
+                if (diffSeconds < 30) {
+                    throw new functions.https.HttpsError(
+                        "cancelled",
+                        `Se registró la visita del cliente por el monto de $${documentData.amount},
+                        si deseas registrar otra visita diferente espera 15 segundos.`,
+                        null
+                    );
+                }
+            }
+
+            return getCompanyRewards();
+        })
+        .then((querySnapshot) => {
+            querySnapshot.forEach(function (doc) {
+                companyRewards.push(doc.data());
+            });
+            return getUserInfo();
+        })
+        .then((doc) => {
+            return verifyUserCompanies(doc);
+        })
+        .then((companyFound) => {
+            if (!companyFound) {
+                return addCompanyToUser();
+            } else {
+                return true;
+            }
+        })
+        .then(() => {
+            return getUserDataFromCompanyDB();
+        })
+        .then((doc) => {
+            if (doc.exists) {
+                userData = doc.data();
+            } else {
+                newClient = true;
+            }
+
+            return true;
+        })
+        .then(() => {
+            return getCompanySettings();
+        })
+        .then((doc) => {
+            companySettings = doc.data();
+
+            return getGlobalCompanySettings();
+        })
+        .then((doc) => {
+            if (doc.data().collectPoints !== undefined) {
+                collectPoints = doc.data().collectPoints;
+            }
+
+            return checkUserRewardsFromCompanyDB();
+        })
+        .then(async (querySnapshot) => {
+            let totalRewards = companyRewards.length;
+            let userRewards = 0;
+            let changedRewards = 0;
+
+            const {hasOneVisitPerDayLimit} = companySettings;
+
+            const lastValidVisitDate = await getLastValidVisit();
+
+            let oneDayAfterLastSeen = new Date(lastValidVisitDate);
+            oneDayAfterLastSeen.setDate(oneDayAfterLastSeen.getDate() + 1);
+
+            let today = new Date();
+            if (hasOneVisitPerDayLimit && oneDayAfterLastSeen > today) {
+                return getEmployeeInfo()
+                    .then((doc) => {
+                        const {uid, email, name} = doc.data();
+                        employeeData = {uid: uid, email: email, name: name};
+                        return addRewardToLog(false);
+                    })
+                    .then(() => {
+                        return setUserDataToCompanyDB();
+                    })
+                    .then(() => {
+                        return addUserVisitToCompanyDB();
+                    })
+                    .then(() => {
+                        return addUserVisitToHistory(false);
+                    })
+                    .then(() => {
+                        throw new functions.https.HttpsError(
+                            "cancelled",
+                            "El usuario visitó el establecimiento hace menos de 24 horas.
+                            Solo se puede registrar una visita cada 24 horas.",
+                            null
+                        );
+                    })
+                    .catch((error) => {
+                        throw new functions.https.HttpsError("cancelled", error.message, null);
+                    });
+            } else {
+                querySnapshot.forEach(function (doc) {
+                    userRewards += 1;
+                    rewardProcessed = doc.data();
+                    rewardProcessed.actualVisits = rewardProcessed.actualVisits + 1;
+                    rewardProcessed.lastClaimed = new Date();
+                    changedRewards += 1;
+
+                    if (
+                        rewardProcessed.actualVisits >= rewardProcessed.visits &&
+                        (rewardProcessed.unlockedAt === null || rewardProcessed.unlockedAt === undefined)
+                    ) {
+                        rewardProcessed.unlockedAt = new Date();
+                    }
+
+                    companyRewards.forEach((reward, index) => {
+                        if (reward.rewardid === rewardProcessed.rewardid) {
+                            companyRewards[index] = rewardProcessed;
+                        }
+                    });
+                });
+            }
+
+            if (changedRewards > 0 || totalRewards !== userRewards || collectPoints) {
+                return true;
+            } else {
+                return getEmployeeInfo()
+                    .then((doc) => {
+                        const {uid, email, name} = doc.data();
+                        employeeData = {uid: uid, email: email, name: name};
+                        return addRewardToLog(false);
+                    })
+                    .then(() => {
+                        return setUserDataToCompanyDB();
+                    })
+                    .then(() => {
+                        return addUserVisitToCompanyDB();
+                    })
+                    .then(() => {
+                        return addUserVisitToHistory(false);
+                    })
+                    .then(() => {
+                        throw new functions.https.HttpsError(
+                            "cancelled",
+                            "Ninguna promocion aplica. No se efectuaron cambios.",
+                            null
+                        );
+                    })
+                    .catch((error) => {
+                        throw new functions.https.HttpsError("cancelled", error.message, null);
+                    });
+            }
+        })
+        .then(() => {
+            return addRewardToCompanyDB();
+        })
+        .then(() => {
+            return addUserToReward();
+        })
+        .then(() => {
+            return getEmployeeInfo();
+        })
+        .then((doc) => {
+            const {uid, email, name} = doc.data();
+            employeeData = {uid: uid, email: email, name: name};
+            return addRewardToLog(true);
+        })
+        .then(() => {
+            return setUserDataToCompanyDB();
+        })
+        .then(() => {
+            return addUserVisitToCompanyDB();
+        })
+        .then(() => {
+            return addUserVisitToHistory(true);
+        })
+        .then(() => {
+            return addRewardToUserDB();
+        })
+        .then(() => {
+            return {
+                status: 231,
+                message: "Se han aplicado las promociones aplicables con éxito.",
+                folio: visitFolio.slice(-5),
+                visitID: visitFolio,
+            };
+        })
+        .catch((error: any) => {
+            throw error;
+        });
+};

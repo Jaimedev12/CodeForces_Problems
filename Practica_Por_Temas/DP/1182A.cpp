@@ -18,5 +18,21 @@ typedef vector<lli> vi;
 #define fore(i, a, b) for(lli i = (a), TT = (b); i < TT; ++i)
 
 int main() { _
-    print((-25)*(25));
+
+    int n; cin >> n;
+
+    lli ans = 2;
+
+    if (n % 2 != 0) {
+        print(0);
+        return 0;
+    }
+
+    fore (i, 1, n/2) {
+        ans *= 2;
+    }
+
+    print(ans);
+
+	return 0;
 }

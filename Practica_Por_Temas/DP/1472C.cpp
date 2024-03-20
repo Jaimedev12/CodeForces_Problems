@@ -17,6 +17,33 @@ typedef vector<lli> vi;
 #define print(s) cout << s << endl
 #define fore(i, a, b) for(lli i = (a), TT = (b); i < TT; ++i)
 
+void solve() {
+    int n; cin >> n;
+    vector<int> nums(n);
+    vector<int> dp(n);
+
+    fore(i, 0, n) {
+        cin >> nums[i];
+    }
+
+    int ans = 0;
+    for (int i = n-1; i >= 0; i--) {
+        dp[i] = nums[i];
+
+        if (i + nums[i] < n) {
+            dp[i] += dp[i+nums[i]];
+        }
+        ans = max(ans, dp[i]);
+    }
+
+    print(ans);
+}
+
 int main() { _
-    print((-25)*(25));
+
+    int t; cin >> t;
+    while (t--) {
+        solve();
+    }
+	return 0;
 }

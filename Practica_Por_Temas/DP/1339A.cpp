@@ -17,6 +17,16 @@ typedef vector<lli> vi;
 #define print(s) cout << s << endl
 #define fore(i, a, b) for(lli i = (a), TT = (b); i < TT; ++i)
 
+void solve() {
+    lli n; cin >> n;
+    print(n);
+}
+
 int main() { _
-    print((-25)*(25));
+
+    int t; cin >> t;
+    while(t--) {
+        solve();
+    }
+	return 0;
 }

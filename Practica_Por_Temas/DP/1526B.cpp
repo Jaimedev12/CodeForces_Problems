@@ -17,6 +17,33 @@ typedef vector<lli> vi;
 #define print(s) cout << s << endl
 #define fore(i, a, b) for(lli i = (a), TT = (b); i < TT; ++i)
 
+void solve() {
+    lli n; cin >> n;
+    if (n > 11*111) {
+        print("YES");
+        return;
+    }
+
+    unordered_set<int> possible;
+    for (int i = 0; i <= 11*111; i += 111) {
+        for (int j = 0; j+i <= 11*111; j += 11) {
+            possible.insert(i+j);
+        }
+    }
+
+    if (possible.count(n)) {
+        print("YES");
+    } else {
+        print("NO");
+    }
+}
+
 int main() { _
-    print((-25)*(25));
+
+    int t; cin >> t;
+
+    while (t--) {
+        solve();
+    }
+	return 0;
 }

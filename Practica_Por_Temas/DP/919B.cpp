@@ -18,5 +18,30 @@ typedef vector<lli> vi;
 #define fore(i, a, b) for(lli i = (a), TT = (b); i < TT; ++i)
 
 int main() { _
-    print((-25)*(25));
+
+    int k; cin >> k;
+    int counter = 0;
+    lli num = 18;
+
+    while (true) {
+        lli curNum = num;
+        int sum = 0;
+        while (curNum) {
+            sum += curNum % 10;
+            curNum /= 10;
+        }
+
+        if (sum == 10) {
+            counter++;
+        }
+
+        if (counter == k) {
+            print(num);
+            break;
+        }
+
+        num++;
+    }
+
+	return 0;
 }

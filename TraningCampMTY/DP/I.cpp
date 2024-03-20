@@ -17,6 +17,11 @@ typedef vector<lli> vi;
 #define print(s) cout << s << endl
 #define fore(i, a, b) for(lli i = (a), TT = (b); i < TT; ++i)
 
-int main() { _
-    print((-25)*(25));
+#define MOD 1e9+7
+
+int main(){
+    lli n; cin >> n;
+    vector<lli> dp(n);
+    
+
 }

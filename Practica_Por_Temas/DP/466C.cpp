@@ -32,16 +32,16 @@ int main()
                 cnt[i] = 1;
         }
 
-        for (int i = 0; i < n; i++) {
-            cout << cnt[i] << " ";
-        }cout << endl;
+        // for (int i = 0; i < n; i++) {
+        //     cout << cnt[i] << " ";
+        // }cout << endl;
 
         for(int i = n-2 ; i >= 0 ; --i)
             cnt[i] += cnt[i+1];
 
-        for (int i = 0; i < n; i++) {
-            cout << cnt[i] << " ";
-        }cout << endl;
+        // for (int i = 0; i < n; i++) {
+        //     cout << cnt[i] << " ";
+        // }cout << endl;
         
         long long ans = 0;
         ss = 0;
@@ -59,7 +59,5 @@ int main()
 /*
 1 2 3 0 3 --> a
 0 0 0 1 1 --> cnt
-
-
 
 */
