@@ -1,0 +1,69 @@
+// import {firestore} from "../../../../firebase";
+import {addRewardToLog} from "../addRewardToLog";
+import {RewardLogData} from "../../types";
+import {setupFirestoreMock} from "../../../../utils/testUtils";
+
+jest.mock("../../../../firebase");
+
+describe("addRewardToLog", () => {
+
+    let docMock: any;
+    let collectionMock: any;
+    beforeEach(() => {
+        jest.resetAllMocks();
+
+        ({docMock, collectionMock} = setupFirestoreMock());
+    });
+
+    it("should add a reward to the log successfully", async () => {
+        collectionMock.add.mockResolvedValue({id: "docId"});
+        // const addMock = jest.fn().mockResolvedValue({id: "docId"});
+        // const setMock = jest.fn().mockResolvedValue({});
+        // (firestore.collection as jest.Mock).mockReturnValue({
+        //     doc: () => ({
+        //         collection: () => ({
+        //             add: addMock,
+        //             doc: () => ({set: setMock}),
+        //         }),
+        //     }),
+        // });
+
+        const logData = {
+            companyid: "companyId",
+            location: "location",
+            newClient: true,
+            employee: "employee",
+            client: "client",
+            amount: 100,
+        } as unknown as RewardLogData;
+
+        const result = await addRewardToLog(true, logData);
+
+        expect(collectionMock.add).toHaveBeenCalled();
+        expect(docMock.set).toHaveBeenCalledWith({uid: "docId"}, {merge: true});
+        expect(result).toEqual("docId");
+    });
+
+    it("should throw an error if adding a reward to the log fails", async () => {
+        collectionMock.add.mockRejectedValue(new Error("Add failed"));
+        // const addMock = jest.fn().mockRejectedValue(new Error("Add failed"));
+        // (firestore.collection as jest.Mock).mockReturnValue({
+        //     doc: () => ({
+        //         collection: () => ({
+        //             add: addMock,
+        //         }),
+        //     }),
+        // });
+
+        const logData = {
+            companyid: "companyId",
+            location: "location",
+            newClient: true,
+            employee: "employee",
+            client: "client",
+            amount: 100,
+        } as unknown as RewardLogData;
+
+        await expect(addRewardToLog(true, logData)).rejects.toThrow("Add failed");
+    });
+});

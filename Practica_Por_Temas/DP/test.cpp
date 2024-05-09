@@ -2,7 +2,7 @@
 using namespace std;
 
 #define endl '\n'
-#define _ ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+#define _ ios_base::sync_with_stdio (0);cin.tie(0);cout.tie(0);
 
 typedef long double ld;
 typedef long long int lli;
@@ -18,5 +18,13 @@ typedef vector<lli> vi;
 #define fore(i, a, b) for(lli i = (a), TT = (b); i < TT; ++i)
 
 int main() { _
-    print((-25)*(25));
+    string s1 = "10001012210110002001010202102011212101210110011100011111111111021211102212020010211112210010111220101010112201001111021012111021101001101000002201020111020120201000111021";
+    string s2 = "100010122101100020010102021020112121012101100111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111";
+
+    fore(i, 0, s1.size()) {
+        if (s1[i] != s2[i]) {
+            print(i);
+            break;
+        }
+    }
 }
