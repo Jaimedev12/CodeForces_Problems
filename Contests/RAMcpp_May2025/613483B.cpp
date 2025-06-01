@@ -17,20 +17,36 @@ typedef vector<lli> vi;
 #define print(s) cout << s << endl
 #define fore(i, a, b) for(lli i = (a), TT = (b); i < TT; ++i)
 
-const lli MOD = 1e9 + 7;
-
-lli sumMod(lli a, lli b) {
-    return ((a%MOD) + (b%MOD))%MOD;
-}
-
-lli multMod(lli a, lli b) {
-    return ((a%MOD) * (b%MOD))%MOD;
-}
-
 
 void solve() {
-	
-}
+    lli n, m;
+    cin >> n >> m;
+
+    vi nums(n);
+
+    lli firstDefined = -1;
+    fore(i, 0, n) {
+        cin >> nums[i];
+
+        if (nums[i] != -1 && firstDefined == -1) {
+            firstDefined = i;
+        }
+    }
+
+    for (int i = firstDefined-1; i >= 0; i--) {
+        nums[i] = nums[i+1]-1;
+        if (nums[i] < 0) nums[i] = m-1;
+    }
+
+    fore(i, firstDefined+1, n) {
+        nums[i] = (nums[i-1]+1)%m;
+    }
+
+    fore(i, 0, n) {
+        cout << nums[i] << " ";
+    }
+    cout << endl;
+}  
 
 int main() { _
 

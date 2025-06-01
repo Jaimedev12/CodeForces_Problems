@@ -17,29 +17,39 @@ typedef vector<lli> vi;
 #define print(s) cout << s << endl
 #define fore(i, a, b) for(lli i = (a), TT = (b); i < TT; ++i)
 
-const lli MOD = 1e9 + 7;
-
-lli sumMod(lli a, lli b) {
-    return ((a%MOD) + (b%MOD))%MOD;
-}
-
-lli multMod(lli a, lli b) {
-    return ((a%MOD) * (b%MOD))%MOD;
-}
-
 
 void solve() {
-	
+	lli n; cin >> n;
+
+    vi nums(n);
+
+    fore(i, 0, n) {
+        cin >> nums[i];
+    }
+
+    vi prefs(n+1);
+    prefs[0] = 0;
+    prefs[1] = nums[0];
+    fore(i, 2, n+1) {
+        prefs[i] = nums[i] & prefs[i-1];
+    }
+
+    fore(i, 1, n+1) {
+        cout << prefs[i] << " ";
+    }
+    cout << endl;
 }
 
 int main() { _
 
-    int t; cin >> t;
-    //int t = 1;
+    print((9&11));
 
-    while (t--) {
-        solve();
-    }
+    // int t; cin >> t;
+    // //int t = 1;
+
+    // while (t--) {
+    //     solve();
+    // }
 
 	return 0;
 }

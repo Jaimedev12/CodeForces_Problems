@@ -27,9 +27,23 @@ lli multMod(lli a, lli b) {
     return ((a%MOD) * (b%MOD))%MOD;
 }
 
-
 void solve() {
-	
+    lli n; cin >> n;
+
+    lli ans = 1;
+
+    fore(i, 0, n) {
+        lli num;
+        cin >> num;
+
+        ans = multMod(ans, sumMod(num, 1));
+    }
+
+    if (ans == 0) {
+        print(MOD-1);
+    } else {
+        print(ans-1);
+    }
 }
 
 int main() { _
