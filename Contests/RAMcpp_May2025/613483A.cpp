@@ -17,39 +17,56 @@ typedef vector<lli> vi;
 #define print(s) cout << s << endl
 #define fore(i, a, b) for(lli i = (a), TT = (b); i < TT; ++i)
 
-
 void solve() {
 	lli n; cin >> n;
 
-    vi nums(n);
+    vector<bitset<32>> mat(n);
 
+    lli temp;
     fore(i, 0, n) {
-        cin >> nums[i];
+        cin >> temp;
+        mat[i] = temp;
     }
 
-    vi prefs(n+1);
-    prefs[0] = 0;
-    prefs[1] = nums[0];
-    fore(i, 2, n+1) {
-        prefs[i] = nums[i] & prefs[i-1];
+    // fore(i, 0, n) {
+    //     print(mat[i]);
+    // }
+
+    lli ans = 0;
+    lli currAporte = 1;
+
+    fore(i, 0, 32) {
+        lli currCount = 0;
+        // print("Checking bit: " << i << " con aporte: " << currAporte);
+
+        fore(j, 0, n) {
+            if (mat[j][i]) {
+                currCount++;
+            } else {
+                lli totalSubarrs = (currCount * (currCount+1))/2;
+                ans += totalSubarrs * currAporte;
+                currCount = 0;
+            }
+        }
+        lli totalSubarrs = (currCount * (currCount+1))/2;
+        ans += totalSubarrs * currAporte;
+        currCount = 0;
+        currAporte = currAporte<<1;
+        // print("CurrAns: " << ans);
     }
 
-    fore(i, 1, n+1) {
-        cout << prefs[i] << " ";
-    }
-    cout << endl;
+    print(ans);
+
 }
 
 int main() { _
 
-    print((9&11));
+    int t; cin >> t;
+    //int t = 1;
 
-    // int t; cin >> t;
-    // //int t = 1;
-
-    // while (t--) {
-    //     solve();
-    // }
+    while (t--) {
+        solve();
+    }
 
 	return 0;
 }
